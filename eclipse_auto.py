@@ -3,13 +3,18 @@ from autopy import mouse
 from autopy.mouse import LEFT_BUTTON, RIGHT_BUTTON
 from autopy import alert
 from autopy import key
+from autopy import screen
 import time
 
-ECLIPSE_COLLAPSE_ALL_IMG = "img/ecl_collapse_all.png"
-ECLIPSE_SERVERS_ACTIVE_IMG = "img/ecl_servers_active.png"
 ECLIPSE_JBOSS_LOGO_IMG = "img/ecl_jboss_logo.png"
+ECLIPSE_OPEN_PERSPECTIVE_IMG = "img/ecl_open_perspective.png"
 
 #UTIL functions
+def move_middle_bottom():
+    """Moves the mouse to the bottom middle of the screen."""
+    size = screen.get_size()
+    middle_bottom = (size[0]/2, size[1]-1)
+    mouse.move(middle_bottom[0],middle_bottom[1])
 
 def move_click(coordinates, button):
     """Moves the mouse to the specified coordinate and click the specified button."""
@@ -60,14 +65,31 @@ def open_eclipse():
     open_main_menu()
     key.type_string("eclipse", 0)
     key.tap(long(key.K_RETURN))
+    wait_target(ECLIPSE_OPEN_PERSPECTIVE_IMG)#is better than 'time.sleep' to wait eclipse to be ready.
+    time.sleep(1)
+
+def ecl_show_view(search):
+    """Uses a series of shortcuts to search functionality in eclipse and selects then."""
+    key.tap(long(ord('w')),long(key.MOD_ALT))
+    key.tap(long(ord('v')))
+    key.tap(long(ord('o')))
+    time.sleep(1)
+    key.tap(long(key.K_DELETE))
+    key.type_string(search, 0)
+    time.sleep(1)
+    move_middle_bottom()
+    mouse.click(LEFT_BUTTON) #to gain focus
+    key.tap(long(key.K_RETURN))
+    time.sleep(1)
 
 def ecl_collapse_all():
-    """Clicks on 'collapse all' in the eclipse."""
-    wait_target_click(ECLIPSE_COLLAPSE_ALL_IMG, LEFT_BUTTON)
+    """Tap shortcut to 'collapse all' in the eclipse."""
+    ecl_show_view("Package Explorer")
+    key.tap(long(ord('/')), long(key.MOD_CONTROL) | long(key.MOD_SHIFT))
 
 def ecl_servers():
-    """Clicks on tab 'Servers' in the eclipse."""
-    wait_target_click(ECLIPSE_SERVERS_ACTIVE_IMG, LEFT_BUTTON)
+    """Activate tab 'Servers' in the eclipse."""
+    ecl_show_view("Servers")
 
 def ecl_jboss_clear():
     """Clicks on tab 'Servers' in the eclipse, and clean all published resources on JBOSS container."""
